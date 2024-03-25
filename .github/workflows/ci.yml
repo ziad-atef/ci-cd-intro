@@ -174,7 +174,6 @@ jobs:
   
   sonarqube:
     name: 'SonarQube Scan'
-    needs: cache
     defaults:
       run:
         shell: bash
