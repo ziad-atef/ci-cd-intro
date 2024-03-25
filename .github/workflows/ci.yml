@@ -12,8 +12,39 @@ on:
       - main
     paths:
       - 'web/**'
+  workflow_dispatch:
 
 jobs:
+  cache:
+    name: 'Cache dependencies'
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./web
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      name: 'Checkout repository'
+
+    - name: 'Cache node modules'
+      id: cache-npm
+      uses: actions/cache@v3
+      env:
+          cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}--${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+    - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+      name: List the state of node modules
+      continue-on-error: true
+      run: npm list
+
+    - name: Install dependencies
+      # only run npm if cache not found
+      if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+      run: npm install
+
 
   # Run unit tests to make sure everything is 👍
   test:
@@ -27,10 +58,26 @@ jobs:
     runs-on: ubuntu-latest
     # Define the steps for this job
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       name: 'Checkout repository'
 
-    - name: 'Install Dependencies'
+    - name: 'Cache node modules'
+      id: cache-npm
+      uses: actions/cache@v3
+      env:
+          cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}--${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+    - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+      name: List the state of node modules
+      continue-on-error: true
+      run: npm list
+
+    - name: Install dependencies
+      # only run npm if cache not found
+      if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
       run: npm install
     
     - name: 'Run Tests'
