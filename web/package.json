@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "build": "echo \"No build specified\" && exit 0",
     "start": "node ./bin/www",
     "lint": "npx standard --fix",
     "test": "jest --detectOpenHandles"
