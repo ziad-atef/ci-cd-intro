@@ -44,6 +44,30 @@ jobs:
       # only run npm if cache not found
       if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
       run: npm install
+  
+  build:
+    name: 'Build application'
+    needs: cache
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./web
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      name: 'Checkout repository'
+
+    - name: 'Getting cached node modules'
+      id: cache-npm
+      uses: actions/cache@v3
+      env:
+          cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}--${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+
+    - name: 'Build application'
+      run: npm run build
 
 
   # Run unit tests to make sure everything is 👍
@@ -62,7 +86,7 @@ jobs:
     - uses: actions/checkout@v4
       name: 'Checkout repository'
 
-    - name: 'Cache node modules'
+    - name: 'Getting cached node modules'
       id: cache-npm
       uses: actions/cache@v3
       env:
@@ -70,10 +94,6 @@ jobs:
       with:
         path: ~/.npm
         key: ${{ runner.os }}--${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-
-    - name: Install dependencies only if cache not found
-      if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-      run: npm install
     
     - name: 'Run Tests'
       run: npm run test
@@ -92,7 +112,7 @@ jobs:
     - uses: actions/checkout@v2
       name: 'Checkout repository'
     
-    - name: 'Cache node modules'
+    - name: 'Getting cached node modules'
       id: cache-npm
       uses: actions/cache@v3
       env:
@@ -100,10 +120,6 @@ jobs:
       with:
         path: ~/.npm
         key: ${{ runner.os }}--${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-
-    - name: Install dependencies only if cache not found
-      if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-      run: npm install
 
     - name: 'Run Linter'
       run: npx standard -v
