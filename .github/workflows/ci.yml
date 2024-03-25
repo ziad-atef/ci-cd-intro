@@ -43,7 +43,7 @@ jobs:
     - name: Install dependencies
       # only run npm if cache not found
       if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-      run: npm install
+      run: npm install --include=dev
   
   build:
     name: 'Build application'
