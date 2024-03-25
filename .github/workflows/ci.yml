@@ -155,7 +155,7 @@ jobs:
       with:
         path: ~/.npm
         key: ${{ runner.os }}--${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-        
+
     - name: Scan current project
       uses: anchore/scan-action@v3
       with:
@@ -171,3 +171,21 @@ jobs:
       uses: anchore/scan-action@v3
       with:
         sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
+  
+  sonarqube:
+    name: 'SonarQube Scan'
+    needs: cache
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./web
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      name: 'Checkout repository'
+
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
