@@ -134,3 +134,28 @@ jobs:
 
     - name: 'Run Linter'
       run: npx standard -v
+
+  dependencyScanning:
+    name: 'Dependency scanning'
+    needs: cache
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./web
+    runs-on: ubuntu-latest
+    steps:
+    - name: Scan current project
+      uses: anchore/scan-action@v3
+      with:
+        path: "."
+    
+    - name: Create SBOM
+      uses: anchore/sbom-action@v0
+      with:
+        format: spdx-json
+        output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
+
+    - name: Scan SBOM
+      uses: anchore/scan-action@v3
+      with:
+        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
